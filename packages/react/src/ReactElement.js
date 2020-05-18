@@ -179,10 +179,20 @@ export function createElement(type, config, children) {
   let self = null;
   let source = null;
 
+  /** 四个保留属性
+  const RESERVED_PROPS = {
+    key: true,
+    ref: true,
+    __self: true,
+    __source: true,
+  };
+   */
   if (config != null) {
+    // 设置保留属性
     if (hasValidRef(config)) {
       ref = config.ref;
     }
+    // props.key 强制转换为 String
     if (hasValidKey(config)) {
       key = '' + config.key;
     }
@@ -190,6 +200,7 @@ export function createElement(type, config, children) {
     self = config.__self === undefined ? null : config.__self;
     source = config.__source === undefined ? null : config.__source;
     // Remaining properties are added to a new props object
+    // 此处将除了保留属性 RESERVED_PROPS 中的成员以外的全部 config，都包装到 props中
     for (propName in config) {
       if (
         hasOwnProperty.call(config, propName) &&
@@ -202,6 +213,7 @@ export function createElement(type, config, children) {
 
   // Children can be more than one argument, and those are transferred onto
   // the newly allocated props object.
+  // 将剩下的全部 children 参数都包装成 childrenArray 列表，作为 props.children 属性
   const childrenLength = arguments.length - 2;
   if (childrenLength === 1) {
     props.children = children;
@@ -219,6 +231,8 @@ export function createElement(type, config, children) {
   }
 
   // Resolve default props
+  // 检查该 class 预先定义了的默认属性 defaultProps，一旦出现某属性值为 undefined，
+  // 则置为默认属性 defaultProps[propName]。设为 null 不会用默认值替代
   if (type && type.defaultProps) {
     const defaultProps = type.defaultProps;
     for (propName in defaultProps) {

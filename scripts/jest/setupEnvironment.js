@@ -4,6 +4,8 @@ const NODE_ENV = process.env.NODE_ENV;
 if (NODE_ENV !== 'development' && NODE_ENV !== 'production') {
   throw new Error('NODE_ENV must either be set to development or production.');
 }
+
+// __DEV__ 用于区分开发环境与生产环境
 global.__DEV__ = NODE_ENV === 'development';
 global.__PROFILE__ = NODE_ENV === 'development';
 global.__UMD__ = false;

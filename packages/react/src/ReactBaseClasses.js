@@ -56,6 +56,7 @@ Component.prototype.isReactComponent = {};
  * @protected
  */
 Component.prototype.setState = function(partialState, callback) {
+  // 检查传入的 partialState 的类型是否合法
   invariant(
     typeof partialState === 'object' ||
       typeof partialState === 'function' ||
@@ -63,6 +64,8 @@ Component.prototype.setState = function(partialState, callback) {
     'setState(...): takes an object of state variables to update or a ' +
       'function which returns an object of state variables.',
   );
+
+  // 在 react-dom 实现具体的 update
   this.updater.enqueueSetState(this, partialState, callback, 'setState');
 };
 
@@ -122,6 +125,7 @@ if (__DEV__) {
   }
 }
 
+// ComponentDummy 继承了 Component.prototype 里刚才定义的各种成员，例如 setState
 function ComponentDummy() {}
 ComponentDummy.prototype = Component.prototype;
 
@@ -136,10 +140,17 @@ function PureComponent(props, context, updater) {
   this.updater = updater || ReactNoopUpdateQueue;
 }
 
+// 此处 new ComponentDummy 只包含 setState 等 Component.prototype 中的成员
+// 没有 this.ref 等成员
 const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
 pureComponentPrototype.constructor = PureComponent;
 // Avoid an extra prototype jump for these methods.
+// 把 Component.prototype 中的成员也拷贝到 pureComponentPrototype 中
+// 缩短之后 PureComponent 对象调用时的 prototype-链 调用
 Object.assign(pureComponentPrototype, Component.prototype);
+// 唯一的区别：
+// 定义这么一个 isPureReactComponent Flag
+// react-dom 会主动判断是否 isPureReactComponent
 pureComponentPrototype.isPureReactComponent = true;
 
 export {Component, PureComponent};
